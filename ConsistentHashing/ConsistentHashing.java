@@ -20,9 +20,9 @@ public final class ConsistentHashing {
   private static final int RING_SIZE = 32; // Some large number.
   private final DataNode[] dataNodes;
 
-  public ConsistentHashing(int noOfDataNodes) {
-    this.dataNodes = new DataNode[noOfDataNodes];
-    for (int i = 0; i < noOfDataNodes; i++) {
+  public ConsistentHashing(int dataNodeCount) {
+    this.dataNodes = new DataNode[dataNodeCount];
+    for (int i = 0; i < dataNodeCount; i++) {
       dataNodes[i] = new DataNode(i, HashUtil.hashSimple(Integer.toString(i)) % RING_SIZE);
     }
   }
@@ -34,7 +34,7 @@ public final class ConsistentHashing {
   }
 
   public static void main(String[] args) {
-    ConsistentHashing consistentHashing = new ConsistentHashing(5);
+    ConsistentHashing consistentHashing = new ConsistentHashing(/* dataNodeCount= */ 5);
     consistentHashing.printNodes();
   }
 }
