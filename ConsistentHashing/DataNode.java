@@ -36,10 +36,6 @@ public final class DataNode {
     data.put(key, value);
   }
 
-  public Map<String, String> getAllData() {
-    return data;
-  }
-
   @Override
   public String toString() {
     return "[Node: " + id + ", Index: " + index + ", Data: " + data + "]";
