@@ -1,3 +1,7 @@
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+
 /**
  * Consistent Hashing implementation.
  *
@@ -17,13 +21,32 @@
  * from one adjacent node without redistributing the data in other nodes.
  */
 public final class ConsistentHashing {
-  private static final int RING_SIZE = 32; // Some large number.
+  private static final int RING_SIZE = 32; // Usually, some large number.
   private final DataNode[] dataNodes;
+  private final Set<Integer> nodeIndices;
 
   public ConsistentHashing(int dataNodeCount) {
     this.dataNodes = new DataNode[dataNodeCount];
+    this.nodeIndices = new HashSet<>();
     for (int i = 0; i < dataNodeCount; i++) {
-      dataNodes[i] = new DataNode(i, HashUtil.hashSimple(Integer.toString(i)) % RING_SIZE);
+      dataNodes[i] = new DataNode(i, getNextAvailableNodeIndex());
+    }
+  }
+
+  /**
+   * Returns a random available index in the range [0, RING_SIZE).
+   *
+   * <p>This should ideally be implemeted as a hash of node id. However, for simplicity, we are
+   * using a random number generator.
+   */
+  private int getNextAvailableNodeIndex() {
+    Random random = new Random();
+    while (true) {
+      int index = random.nextInt(RING_SIZE);
+      if (!nodeIndices.contains(index)) {
+        nodeIndices.add(index);
+        return index;
+      }
     }
   }
 
