@@ -1,3 +1,5 @@
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -31,6 +33,7 @@ public final class ConsistentHashing {
     for (int i = 0; i < dataNodeCount; i++) {
       dataNodes[i] = new DataNode(i, getNextAvailableNodeIndex());
     }
+    Arrays.sort(dataNodes, Comparator.comparingInt(DataNode::getIndex));
   }
 
   /**
@@ -50,14 +53,51 @@ public final class ConsistentHashing {
     }
   }
 
-  public void printNodes() {
+  /**
+   * Inserts the given key-value pair into the appropriate data node.
+   *
+   * <p>This first finds the hashed index of the key and then locates the next data node in the
+   * ring. The key-value pair is then inserted into this data node.
+   */
+  public void insert(String key, String value) {
+    int index = HashUtil.hash31(key) % RING_SIZE;
+    System.out.println("Inserting key: " + key + ", value: " + value + ", index: " + index);
+    DataNode nextDataNode = getNextDataNode(index);
+    nextDataNode.insert(key, value);
+  }
+
+  /**
+   * Returns the data node that is either at or to the right side (clockwise) of a given index. If
+   * no such node is found, returns the first node (i.e. loop back to the beginning).
+   */
+  private DataNode getNextDataNode(int index) {
+    for (DataNode node : dataNodes) {
+      if (node.getIndex() >= index) {
+        return node;
+      }
+    }
+    return dataNodes[0];
+  }
+
+  public void printDataNodes() {
+    System.out.println("Data Nodes:");
     for (DataNode node : dataNodes) {
       System.out.println(node);
     }
   }
 
   public static void main(String[] args) {
-    ConsistentHashing consistentHashing = new ConsistentHashing(/* dataNodeCount= */ 5);
-    consistentHashing.printNodes();
+    ConsistentHashing consistentHashing = new ConsistentHashing(/* dataNodeCount= */ 4);
+    consistentHashing.printDataNodes();
+
+    // Insert some key-value pairs.
+    consistentHashing.insert("cat", "white");
+    consistentHashing.printDataNodes();
+    consistentHashing.insert("parrot", "green");
+    consistentHashing.printDataNodes();
+    consistentHashing.insert("dog", "brown");
+    consistentHashing.printDataNodes();
+    consistentHashing.insert("elephant", "gray");
+    consistentHashing.printDataNodes();
   }
 }

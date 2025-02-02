@@ -32,7 +32,7 @@ public final class DataNode {
     return data.get(key);
   }
 
-  public void add(String key, String value) {
+  public void insert(String key, String value) {
     data.put(key, value);
   }
 
