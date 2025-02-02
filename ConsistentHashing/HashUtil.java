@@ -1,6 +1,7 @@
 /** A util class that exposes hash functions to compute hashes of strings. */
 public final class HashUtil {
-  // A large prime number that fits in 32-bit signed int that allows safely doubling as well.
+  // A large prime number that fits in a 32-bit integer and also allows safe doubling without any
+  // overflow.
   private static final int MOD = 1_000_000_007;
 
   public static int hashSimple(String key) {

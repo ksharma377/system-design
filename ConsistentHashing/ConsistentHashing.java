@@ -2,11 +2,19 @@
  * Consistent Hashing implementation.
  *
  * <p>Manages a ring of a fixed size (typically a large number to avoid collisions) and maps each
- * node and data key to their hashed locations on this ring.
+ * node and data key to their hashed locations on this ring. Initially contains N nodes and no data.
  *
- * <p>Initially contains N nodes and no data. Supports addition and deletion of nodes. This shifts
- * minimal data from the adjacent node without recomputing and redistributing all the data in other
- * nodes.
+ * <p>Supports the following operations:
+ *
+ * <ul>
+ *   <li>Adding a node.
+ *   <li>Deleting a node.
+ *   <li>Putting a key-value pair.
+ *   <li>Retrieving the value of a key.
+ * </ul>
+ *
+ * <p>Upon addition or deletion of a node, consistent hashing algorithm only shifts minimal data
+ * from one adjacent node without redistributing the data in other nodes.
  */
 public final class ConsistentHashing {
   private static final int RING_SIZE = 32; // Some large number.

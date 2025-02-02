@@ -4,8 +4,8 @@ import java.util.Map;
 /**
  * A data node in the consistent hashing ring.
  *
- * <p>Here we store simple key values as data. The data is mapped to the node based on the hash of
- * their keys.
+ * <p>Here, we store simple key-value pairs as data. Whether the data will be stored on this node or
+ * not depends on the index of the hashed key in the consistent hashing ring.
  *
  * <p>Each node is identified by an id and has a location index in the ring.
  */
