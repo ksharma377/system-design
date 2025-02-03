@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,6 +36,14 @@ public final class DataNode {
 
   public void insert(String key, String value) {
     data.put(key, value);
+  }
+
+  public void delete(String key) {
+    data.remove(key);
+  }
+
+  public List<String> getKeys() {
+    return new ArrayList<>(data.keySet());
   }
 
   @Override

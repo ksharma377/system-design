@@ -24,7 +24,7 @@ import java.util.Set;
  */
 public final class ConsistentHashing {
   private static final int RING_SIZE = 32; // Usually, some large number.
-  private final DataNode[] dataNodes;
+  private DataNode[] dataNodes;
   private final Set<Integer> nodeIndices;
 
   public ConsistentHashing(int dataNodeCount) {
@@ -67,16 +67,51 @@ public final class ConsistentHashing {
   }
 
   /**
-   * Returns the data node that is either at or to the right side (clockwise) of a given index. If
-   * no such node is found, returns the first node (i.e. loop back to the beginning).
+   * Returns the first data node that to the right side (clockwise) of a given index. If no such
+   * node is found, returns the first node (i.e. loop back to the beginning).
    */
   private DataNode getNextDataNode(int index) {
     for (DataNode node : dataNodes) {
-      if (node.getIndex() >= index) {
+      if (node.getIndex() > index) {
         return node;
       }
     }
     return dataNodes[0];
+  }
+
+  /**
+   * Adds a new data node to the ring.
+   *
+   * <p>This creates a new data node with the next available index and adds it to the ring. Also,
+   * moves the required data from the next node to the new node.
+   */
+  public void addNewDataNode() {
+    DataNode newDataNode = new DataNode(dataNodes.length, getNextAvailableNodeIndex());
+    System.out.println("Adding new data node at index: " + newDataNode.getIndex());
+    DataNode[] newDataNodes = new DataNode[dataNodes.length + 1];
+    System.arraycopy(dataNodes, 0, newDataNodes, 0, dataNodes.length);
+    newDataNodes[dataNodes.length] = newDataNode;
+    Arrays.sort(newDataNodes, Comparator.comparingInt(DataNode::getIndex));
+    dataNodes = newDataNodes;
+    moveData(getNextDataNode(newDataNode.getIndex()), newDataNode);
+  }
+
+  /**
+   * Moves data from one node to another.
+   *
+   * <p>Some keys that previously belonged to the src node may now belong to the dest node based on
+   * the hashed index. So, we need to re-map the keys to their new locations. Any key that hashes to
+   * a value smaller than the dest node's index is moved to the dest node.
+   */
+  private void moveData(DataNode src, DataNode dest) {
+    System.out.println("Moving data from node: " + src.getIndex() + " to node: " + dest.getIndex());
+    for (String key : src.getKeys()) {
+      int index = HashUtil.hash31(key) % RING_SIZE;
+      if (index < dest.getIndex()) {
+        dest.insert(key, src.get(key));
+        src.delete(key);
+      }
+    }
   }
 
   public void printDataNodes() {
@@ -92,12 +127,15 @@ public final class ConsistentHashing {
 
     // Insert some key-value pairs.
     consistentHashing.insert("cat", "white");
-    consistentHashing.printDataNodes();
     consistentHashing.insert("parrot", "green");
-    consistentHashing.printDataNodes();
     consistentHashing.insert("dog", "brown");
-    consistentHashing.printDataNodes();
     consistentHashing.insert("elephant", "gray");
+    consistentHashing.insert("giraffe", "yellow");
+    consistentHashing.insert("tiger", "orange");
+    consistentHashing.printDataNodes();
+
+    // Add a new data node.
+    consistentHashing.addNewDataNode();
     consistentHashing.printDataNodes();
   }
 }
