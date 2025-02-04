@@ -85,12 +85,18 @@ public final class DistributedDatabase {
    * node is found, returns the first node (i.e. loop back to the beginning).
    */
   private DataNode getNextDataNode(int index) {
-    for (DataNode node : dataNodes) {
-      if (node.getIndex() > index) {
-        return node;
+    DataNode nextDataNode = dataNodes[0];
+    int low = 0, high = dataNodes.length - 1;
+    while (low <= high) {
+      int mid = low + (high - low) / 2;
+      if (dataNodes[mid].getIndex() > index) {
+        nextDataNode = dataNodes[mid];
+        high = mid - 1;
+      } else {
+        low = mid + 1;
       }
     }
-    return dataNodes[0];
+    return nextDataNode;
   }
 
   /**
