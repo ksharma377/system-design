@@ -26,12 +26,13 @@ public final class ConsistentHashing {
   private static final int RING_SIZE = 32; // Usually, some large number.
   private DataNode[] dataNodes;
   private final Set<Integer> nodeIndices;
+  private int nextNodeId = 0;
 
   public ConsistentHashing(int dataNodeCount) {
     this.dataNodes = new DataNode[dataNodeCount];
     this.nodeIndices = new HashSet<>();
     for (int i = 0; i < dataNodeCount; i++) {
-      dataNodes[i] = new DataNode(i, getNextAvailableNodeIndex());
+      dataNodes[i] = new DataNode(nextNodeId++, getNextAvailableNodeIndex());
     }
     Arrays.sort(dataNodes, Comparator.comparingInt(DataNode::getIndex));
   }
@@ -67,6 +68,19 @@ public final class ConsistentHashing {
   }
 
   /**
+   * Returns the value of the given key.
+   *
+   * <p>This first finds the hashed index of the key and then locates the next data node in the
+   * ring. The value of the key is then fetched from this data node.
+   */
+  public String get(String key) {
+    int index = HashUtil.hash31(key) % RING_SIZE;
+    System.out.println("Fetching key: " + key + ", index: " + index);
+    DataNode nextDataNode = getNextDataNode(index);
+    return nextDataNode.get(key);
+  }
+
+  /**
    * Returns the first data node that to the right side (clockwise) of a given index. If no such
    * node is found, returns the first node (i.e. loop back to the beginning).
    */
@@ -86,7 +100,7 @@ public final class ConsistentHashing {
    * moves the required data from the next node to the new node.
    */
   public void addNewDataNode() {
-    DataNode newDataNode = new DataNode(dataNodes.length, getNextAvailableNodeIndex());
+    DataNode newDataNode = new DataNode(nextNodeId++, getNextAvailableNodeIndex());
     System.out.println("Adding new data node at index: " + newDataNode.getIndex());
     DataNode[] newDataNodes = new DataNode[dataNodes.length + 1];
     System.arraycopy(dataNodes, 0, newDataNodes, 0, dataNodes.length);
@@ -97,17 +111,50 @@ public final class ConsistentHashing {
   }
 
   /**
+   * Deletes a given data node from the ring.
+   *
+   * <p>Also, moves all of its data to the next data node in the ring.
+   */
+  public void deleteDataNode(int id) {
+    DataNode nodeToDelete = null;
+    for (DataNode node : dataNodes) {
+      if (node.getId() == id) {
+        nodeToDelete = node;
+        break;
+      }
+    }
+    if (nodeToDelete == null) {
+      System.out.println("Node with id: " + id + " does not exist.");
+      return;
+    }
+    System.out.println("Deleting data node at index: " + nodeToDelete.getIndex());
+    nodeIndices.remove(nodeToDelete.getIndex());
+    DataNode[] newDataNodes = new DataNode[dataNodes.length - 1];
+    int i = 0;
+    for (DataNode node : dataNodes) {
+      if (node.getId() != id) {
+        newDataNodes[i++] = node;
+      }
+    }
+    dataNodes = newDataNodes;
+    moveData(nodeToDelete, getNextDataNode(nodeToDelete.getIndex()));
+  }
+
+  /**
    * Moves data from one node to another.
    *
    * <p>Some keys that previously belonged to the src node may now belong to the dest node based on
-   * the hashed index. So, we need to re-map the keys to their new locations. Any key that hashes to
-   * a value smaller than the dest node's index is moved to the dest node.
+   * the hashed index. So, we need to re-map the keys to their new locations. We compute the hash of
+   * the key and move this key-value pair to the dest node if the next node in the ring is the dest
+   * node.
    */
   private void moveData(DataNode src, DataNode dest) {
-    System.out.println("Moving data from node: " + src.getIndex() + " to node: " + dest.getIndex());
+    System.out.println(
+        "Moving data from node index: " + src.getIndex() + " to node index: " + dest.getIndex());
     for (String key : src.getKeys()) {
       int index = HashUtil.hash31(key) % RING_SIZE;
-      if (index < dest.getIndex()) {
+      DataNode nextDataNode = getNextDataNode(index);
+      if (nextDataNode.getIndex() == dest.getIndex()) {
         dest.insert(key, src.get(key));
         src.delete(key);
       }
@@ -134,8 +181,24 @@ public final class ConsistentHashing {
     consistentHashing.insert("tiger", "orange");
     consistentHashing.printDataNodes();
 
+    // Fetch a key.
+    System.out.println("Value of key 'cat': " + consistentHashing.get("cat"));
+    System.out.println("Value of key 'elephant': " + consistentHashing.get("elephant"));
+
     // Add a new data node.
     consistentHashing.addNewDataNode();
     consistentHashing.printDataNodes();
+
+    // Fetch a key.
+    System.out.println("Value of key 'dog': " + consistentHashing.get("dog"));
+    System.out.println("Value of key 'tiger': " + consistentHashing.get("tiger"));
+
+    // Delete a data node.
+    consistentHashing.deleteDataNode(/* id= */ 2);
+    consistentHashing.printDataNodes();
+
+    // Fetch a key.
+    System.out.println("Value of key 'parrot': " + consistentHashing.get("parrot"));
+    System.out.println("Value of key 'giraffe': " + consistentHashing.get("giraffe"));
   }
 }
