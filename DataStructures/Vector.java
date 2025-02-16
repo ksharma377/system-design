@@ -13,22 +13,22 @@ public final class Vector {
   private static final double ADD_LOAD_FACTOR_THRESHOLD = 0.5;
   private static final double REMOVE_LOAD_FACTOR_THRESHOLD = 0.125;
 
-  private int length; // Capacity of the vector.
+  private int capacity; // Capacity of the vector.
   private int count; // Number of elements in the vector.
   private int[] array;
 
   public Vector() {
-    this.length = 4; // Initial size.
+    this.capacity = 4; // Initial size.
     this.count = 0; // No elements initially.
-    this.array = new int[this.length];
+    this.array = new int[this.capacity];
   }
 
   /** Adds an element to the end of the vector. */
   public void add(int value) {
     array[count++] = value;
-    double loadFactor = (double) count / length;
+    double loadFactor = (double) count / capacity;
     if (loadFactor >= ADD_LOAD_FACTOR_THRESHOLD) {
-      resize(length * 2);
+      resize(capacity * 2);
     }
   }
 
@@ -42,9 +42,9 @@ public final class Vector {
       throw new RuntimeException("Vector is Empty");
     }
     int value = array[--count];
-    double loadFactor = (double) count / length;
+    double loadFactor = (double) count / capacity;
     if (loadFactor <= REMOVE_LOAD_FACTOR_THRESHOLD) {
-      resize(length / 2);
+      resize(capacity / 2);
     }
     return value;
   }
@@ -66,17 +66,17 @@ public final class Vector {
     return count;
   }
 
-  private void resize(int newLength) {
-    if (newLength < 4) {
-      // Don't shrink below length 4.
+  private void resize(int newCapacity) {
+    if (newCapacity < 4) {
+      // Don't shrink below capacity 4.
       return;
     }
-    int[] newArray = new int[newLength];
+    int[] newArray = new int[newCapacity];
     for (int i = 0; i < count; i++) {
       newArray[i] = array[i];
     }
     array = newArray;
-    length = newLength;
+    capacity = newCapacity;
   }
 
   @Override
@@ -91,7 +91,7 @@ public final class Vector {
     }
     sb.append("]");
     sb.append(", Size: " + count);
-    sb.append(", Capacity: " + length);
+    sb.append(", Capacity: " + capacity);
     return sb.toString();
   }
 }
