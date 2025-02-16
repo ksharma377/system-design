@@ -19,7 +19,7 @@ public final class Vector {
 
   public Vector() {
     this.capacity = 4; // Initial capacity.
-    this.count = 0; // No elements initially.
+    this.count = 0; // No elements to begin with.
     this.array = new int[this.capacity];
   }
 
