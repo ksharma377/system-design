@@ -10,8 +10,8 @@
  * </ul>
  */
 public final class Vector {
-  private static double ADD_LOAD_FACTOR_THRESHOLD = 0.5;
-  private static double REMOVE_LOAD_FACTOR_THRESHOLD = 0.125;
+  private static final double ADD_LOAD_FACTOR_THRESHOLD = 0.5;
+  private static final double REMOVE_LOAD_FACTOR_THRESHOLD = 0.125;
 
   private int length; // Capacity of the vector.
   private int count; // Number of elements in the vector.
