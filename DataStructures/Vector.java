@@ -9,22 +9,23 @@
  *   <li>Getting the value at an index.
  * </ul>
  */
-public final class Vector {
+public final class Vector<T> {
   private static final double ADD_LOAD_FACTOR_THRESHOLD = 0.5;
   private static final double REMOVE_LOAD_FACTOR_THRESHOLD = 0.125;
 
   private int capacity; // Capacity of the vector.
   private int count; // Number of elements in the vector.
-  private int[] array;
+  private T[] array; // Array to store the elements.
 
+  @SuppressWarnings("unchecked")
   public Vector() {
     this.capacity = 4; // Initial capacity.
     this.count = 0; // No elements to begin with.
-    this.array = new int[this.capacity];
+    this.array = (T[]) new Object[this.capacity];
   }
 
   /** Adds an element to the end of the vector. */
-  public void add(int value) {
+  public void add(T value) {
     array[count++] = value;
     double loadFactor = (double) count / capacity;
     if (loadFactor >= ADD_LOAD_FACTOR_THRESHOLD) {
@@ -37,11 +38,11 @@ public final class Vector {
    *
    * <p>If the vector is empty, throws a {@code RuntimeException}.
    */
-  public int remove() throws RuntimeException {
+  public T remove() throws RuntimeException {
     if (count == 0) {
       throw new RuntimeException("Vector is Empty");
     }
-    int value = array[--count];
+    T value = array[--count];
     double loadFactor = (double) count / capacity;
     if (loadFactor <= REMOVE_LOAD_FACTOR_THRESHOLD) {
       resize(capacity / 2);
@@ -54,7 +55,7 @@ public final class Vector {
    *
    * <p>If the index is out of bounds, throws a {@code RuntimeException}.
    */
-  public int get(int index) throws RuntimeException {
+  public T get(int index) throws RuntimeException {
     if (index < 0 || index >= count) {
       throw new RuntimeException("Index Out of Bounds");
     }
@@ -66,12 +67,13 @@ public final class Vector {
     return count;
   }
 
+  @SuppressWarnings("unchecked")
   private void resize(int newCapacity) {
     if (newCapacity < 4) {
       // Don't shrink below capacity 4.
       return;
     }
-    int[] newArray = new int[newCapacity];
+    T[] newArray = (T[]) new Object[newCapacity];
     for (int i = 0; i < count; i++) {
       newArray[i] = array[i];
     }

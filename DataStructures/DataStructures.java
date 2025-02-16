@@ -4,18 +4,18 @@ public final class DataStructures {
   }
 
   private static void testVector() {
-    Vector vector = new Vector();
+    Vector<String> vector = new Vector<>();
     print("Initially: ", vector);
 
-    vector.add(1);
-    vector.add(2);
+    vector.add("one");
+    vector.add("two");
     print("After adding two elements: ", vector);
 
     System.out.println("Element at index 1: " + vector.get(1));
 
-    vector.add(3);
-    vector.add(4);
-    vector.add(5);
+    vector.add("three");
+    vector.add("four");
+    vector.add("five");
     print("After adding three more elements: ", vector);
 
     try {
